@@ -36,7 +36,7 @@ interface Statistics {
 class StorageService {
   private useSQLite: boolean
 
-  constructor(useSQLite = false) {
+  constructor(useSQLite = true) {
     this.useSQLite = useSQLite
   }
 
@@ -241,9 +241,9 @@ export default function AttendanceTracker() {
   const [statsFilterMonth, setStatsFilterMonth] = useState<string>("all")
   const [statsFilterYear, setStatsFilterYear] = useState<string>("all")
   const [statsFilterType, setStatsFilterType] = useState<string>("all")
-  const [useSQLite, setUseSQLite] = useState(false) // 默认使用localStorage
+  const [useSQLite, setUseSQLite] = useState(true) // 默认使用localStorage
   const [loading, setLoading] = useState(false)
-  const [storageService] = useState(() => new StorageService(false)) // 默认localStorage
+  const [storageService] = useState(() => new StorageService(true)) // 默认localStorage
 
   // 加载记录
   const loadRecords = async () => {
@@ -265,7 +265,7 @@ export default function AttendanceTracker() {
 
   // 切换存储方式时重新加载数据
   useEffect(() => {
-    storageService.setStorageMode(useSQLite)
+    storageService.setStorageMode(true)
     loadRecords()
   }, [useSQLite])
 
@@ -420,35 +420,6 @@ export default function AttendanceTracker() {
             <h1 className="text-3xl font-bold mb-2">考勤记录管理系统</h1>
             <p className="text-muted-foreground">管理员工的加班和请假记录</p>
           </div>
-          <Card className="w-80">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Settings className="h-5 w-5" />
-                存储设置
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {useSQLite ? (
-                    <Database className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <HardDrive className="h-4 w-4 text-blue-600" />
-                  )}
-                  <Label htmlFor="storage-mode" className="text-sm">
-                    {useSQLite ? "SQLite 数据库" : "本地存储"}
-                  </Label>
-                </div>
-                <Switch id="storage-mode" checked={useSQLite} onCheckedChange={setUseSQLite} disabled={loading} />
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                {useSQLite
-                  ? "数据存储在 SQLite 数据库文件中，支持持久化存储和备份"
-                  : "数据存储在浏览器本地，简单快速，适合个人使用"}
-              </p>
-              {!useSQLite && <p className="text-xs text-orange-600 mt-1">默认模式：数据仅保存在当前浏览器中</p>}
-            </CardContent>
-          </Card>
         </div>
       </div>
 

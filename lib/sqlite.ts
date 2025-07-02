@@ -1,7 +1,8 @@
 import Database from "better-sqlite3"
 import path from "path"
+const os = require('os');
 
-const dbPath = path.join(process.cwd(), "data", "attendance.db")
+const dbPath = path.join(os.homedir(), "data", "attendance.db")
 
 // 确保数据目录存在
 import fs from "fs"
@@ -12,10 +13,23 @@ if (!fs.existsSync(dataDir)) {
 
 let db: Database.Database
 
-function getDatabase() {
-  if (!db) {
-    db = new Database(dbPath)
+function tableExists(tableName: string): boolean {
+  const stmt = db.prepare(`
+    SELECT 1 FROM sqlite_master 
+    WHERE type='table' AND name=?
+  `);
+  return stmt.get(tableName) !== undefined;
+}
 
+function getDatabase() {
+  if (db) {
+    return db
+  }
+
+  console.log("dbPath:" + dbPath)
+  db = new Database(dbPath)
+
+  if (!tableExists("records")) {
     // 创建表
     db.exec(`
       CREATE TABLE IF NOT EXISTS records (
@@ -28,6 +42,7 @@ function getDatabase() {
       )
     `)
   }
+    
   return db
 }
 
